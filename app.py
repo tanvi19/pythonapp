@@ -27,6 +27,7 @@ def readData():
 
 def writeData():
     print("Write mode \n")
+    data = pds.read_excel(file)
     empId = int(input('Enter Emp id: '))
     empName = input('Enter emp name: ')
     jdt = int(input('Enter joining year: '))
@@ -39,6 +40,7 @@ def writeData():
 
 def updateData():
     print("Update Mode Selected \n")
+    data = pds.read_excel(file)
     empId = int(input('Enter employee Id to update its data: '))
     targetValue = str(input('Enter target value for update: '))
     workbook = load_workbook(filename=filePath)
@@ -55,6 +57,7 @@ def updateData():
 
 def deleteData():
     print("Delete Mode \n")
+    data = pds.read_excel(file)
     empId = int(input('Enter employee Id whos data you want to delete: '))
     workbook = load_workbook(filename=filePath)
     sheet = workbook.active
