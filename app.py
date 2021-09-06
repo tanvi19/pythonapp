@@ -1,6 +1,5 @@
 import pandas as pds
 import openpyxl
-from openpyxl import load_workbook
 import boto3
 import os
 
@@ -19,55 +18,49 @@ def uploadS3File():
     s3.Object(BucketName, s3BucketFileName).upload_file(filePath)
 
 def readData():
-    print("Read Mode \n")
-    #reload data
-    data = pds.read_excel(file)
-    print(data)
-    print('-----------------------------')
+  print("Read Mode \n")
+  #reload data
+  data = pds.read_excel(file)
+  print(data)
+  print('-----------------------------')
 
 def writeData():
-    print("Write mode \n")
-    data = pds.read_excel(file)
-    empId = int(input('Enter Emp id: '))
-    empName = input('Enter emp name: ')
-    jdt = int(input('Enter joining year: '))
-    df = pds.DataFrame([[empId, empName, jdt]],
-                       columns=['Employee Id', 'Employee Name', 'Year Of Joining'])
-    ndata = data.append(df)
-    with pds.ExcelWriter(filePath, mode="a", engine="openpyxl",if_sheet_exists='replace') as writer:
-        ndata.to_excel(writer, sheet_name="Sheet1", index=False)
-    print('-----------------------------')
+  print("Write mode \n")
+  empId = int(input('Enter Emp id: '))
+  empName = input('Enter emp name: ')
+  jdt = int(input('Enter joining year: '))
+  df = pds.DataFrame([[empId, empName, jdt]],
+                  columns=['Employee Id', 'Employee Name', 'Year Of Joining'])
+  #reload data
+  data = pds.read_excel(file)
+  ndata = data.append(df)
+  with pds.ExcelWriter(filePath, mode="a", engine="openpyxl",if_sheet_exists='replace') as writer:
+    ndata.to_excel(writer, sheet_name="Sheet1", index=False)
+  print('-----------------------------')
 
 def updateData():
-    print("Update Mode Selected \n")
-    data = pds.read_excel(file)
-    empId = int(input('Enter employee Id to update its data: '))
-    targetValue = str(input('Enter target value for update: '))
-    workbook = load_workbook(filename=filePath)
-    sheet = workbook.active
-    for row in sheet.iter_rows():
-        #get first object from row which is cell and then its row index
-        rowIdx = row[0].row
-        cell = sheet.cell(row=rowIdx,column=1)
-        if cell.value == empId:
-            targetCell = sheet.cell(row=rowIdx, column=2)
-            targetCell.value=targetValue
-    workbook.save(filePath)
-    print('-----------------------------')
+  print("Update Mode Selected \n")
+  empId = int(input('Enter employee Id to update its data: '))
+  targetValue = str(input('Enter target value for update: '))
+  data = pds.read_excel(file)
+  for index in data.index:
+    if data.loc[index,'Employee Id']==empId:
+        data.loc[index,'Employee Name'] = targetValue
+  with pds.ExcelWriter(filePath, mode="a", engine="openpyxl",if_sheet_exists='replace') as writer:
+    data.to_excel(writer, sheet_name="Sheet1", index=False)
+  print('-----------------------------')
 
 def deleteData():
-    print("Delete Mode \n")
-    data = pds.read_excel(file)
-    empId = int(input('Enter employee Id whos data you want to delete: '))
-    workbook = load_workbook(filename=filePath)
-    sheet = workbook.active
-    for row in sheet.iter_rows():
-        rowIdx = row[0].row
-        cell = sheet.cell(row=rowIdx,column=1)
-        if cell.value == empId:
-            sheet.delete_rows(rowIdx, 1)
-    workbook.save(filePath)
-    print('-----------------------------')
+  print("Delete Mode \n")
+  empId = int(input('Enter employee Id whos data you want to delete: '))
+  data = pds.read_excel(file)
+  for index in data.index:
+    if data.loc[index,'Employee Id']==empId:
+      data = data.drop(index=index)
+  with pds.ExcelWriter(filePath, mode="a", engine="openpyxl",if_sheet_exists='replace') as writer:
+    data.to_excel(writer, sheet_name="Sheet1", index=False)
+  print('-----------------------------')
+
 while True:
     print("Read Data from excel: 1")
     print("Write Data in excel: 2")
